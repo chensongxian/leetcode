@@ -9,7 +9,7 @@ package climbing_stairs;
  */
 public class Solution {
     /**
-     *
+     * 递归
      * @param n
      * @return
      */
