@@ -59,7 +59,7 @@ public class Solution {
     }
 
     /**
-     * 双指针法
+     * hash
      * 时间复杂度：O(n)。
      *
      * 空间复杂度：O(n)。
