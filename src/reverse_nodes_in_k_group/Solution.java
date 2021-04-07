@@ -1,6 +1,8 @@
 package reverse_nodes_in_k_group;
 
 
+import java.util.Timer;
+
 /**
  * @Description:
  * 25. K 个一组翻转链表
@@ -11,45 +13,22 @@ package reverse_nodes_in_k_group;
 public class Solution {
 
     /**
-     * 迭代，需要新增一个哑节点，方便处理
-     * 注意处理节点交换之后，需要处理上一对节点也发生了交换
-     * 需要处理节点关系
-     *
-     * 时间复杂度：O(n)，其中 n 是链表的节点数量。需要对每个节点进行更新指针的操作。
-     *
-     * 空间复杂度：O(1)
+     * 时间复杂度：n
+     * 空间复杂度：1
      * @param head
+     * @param k
      * @return
      */
-    public ListNode swapPairs1(ListNode head) {
-        if (head == null) {
-            return null;
-        }
-        ListNode dummyHead = new ListNode(-1);
-        dummyHead.next = head;
-        ListNode temp = dummyHead;
-        while (temp.next != null && temp.next.next != null) {
-            ListNode node1 = temp.next;
-            ListNode node2 = temp.next.next;
-            temp.next = node2;
-            node1.next = node2.next;
-            node2.next = node1;
-            temp = node1;
-        }
-        return dummyHead.next;
-    }
-
     public ListNode reverseKGroup(ListNode head, int k) {
         if (head == null) {
             return null;
         }
         ListNode hair = new ListNode(-1);
         hair.next = head;
-        ListNode pre = hair;
+        ListNode prev = hair;
 
         while (head != null) {
-            // 判断是否存在k组数组
-            ListNode tail = pre;
+            ListNode tail = prev;
             for (int i = 0; i < k; i++) {
                 tail = tail.next;
                 if (tail == null) {
@@ -57,18 +36,95 @@ public class Solution {
                 }
             }
             ListNode next = tail.next;
-            // 反转k组节点
             ListNode[] listNodes = myReverse(head, tail);
             head = listNodes[0];
             tail = listNodes[1];
-            // 把子链表接回原链表
-            pre.next = head;
+            // 把链表连接到原有链表，
+            prev.next = head;
+            // 可不要，myReverse 中已处理
             tail.next = next;
-            pre = tail;
-            head = tail.next;
+
+            prev = tail;
+            // 等价于 head = tail.next
+            head = next;
         }
         return hair.next;
     }
+
+    /**
+     * 递归1
+     * 先反转，再递归
+     * @param head
+     * @param k
+     * @return
+     */
+    public ListNode reverseKGroup1(ListNode head, int k) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        ListNode tail = head;
+        for (int i = 0 ; i < k; i++) {
+            if (tail == null) {
+                return head;
+            }
+            tail = tail.next;
+        }
+        ListNode newHead = reverse(head, tail);
+        head.next = reverseKGroup1(tail, k);
+        return newHead;
+    }
+
+
+    /**
+     * 递归2
+     * 先递归，再反转，反转时把头节点指向递归返还值
+     * @param head
+     * @param k
+     * @return
+     */
+    public ListNode reverseKGroup2(ListNode head, int k) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        ListNode tail = head;
+        for (int i = 0 ; i < k; i++) {
+            if (tail == null) {
+                return head;
+            }
+            tail = tail.next;
+        }
+        ListNode pre = reverseKGroup2(tail, k);
+        ListNode newHead = reverse1(head, tail, pre);
+        return newHead;
+    }
+
+
+    private ListNode reverse1(ListNode head, ListNode tail, ListNode pre) {
+        ListNode next = null;
+        while (head != tail) {
+            next = head.next;
+            head.next = pre;
+            pre = head;
+            head = next;
+        }
+        return pre;
+
+    }
+
+    private ListNode reverse(ListNode head, ListNode tail) {
+        ListNode pre = null;
+        ListNode next = null;
+        while (head != tail) {
+            next = head.next;
+            head.next = pre;
+            pre = head;
+            head = next;
+        }
+        return pre;
+
+    }
+
+
 
     public ListNode[] myReverse(ListNode head, ListNode tail) {
         ListNode prev = tail.next;
@@ -81,6 +137,8 @@ public class Solution {
         }
         return new ListNode[]{tail, head};
     }
+
+
 
 }
 
